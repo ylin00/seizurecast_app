@@ -1,0 +1,8 @@
+
+# External packages
+numpy
+pandas
+sklearn
+
+# Github repos
+git+https://github.com/forrestbao/pyeeg.git
