@@ -1,19 +1,13 @@
 import configparser
 import time
-
 import streamlit as st
 import numpy as np
-
-# TODO: remove dependence on Processor and Streamer
-from BeatMaker import BeatMaker
-from EEGStreamProcessor import EEGStreamProcessor
 import pickle
 import matplotlib.pyplot as plt
 
+from BeatMaker import BeatMaker
 from MsgConsumer import MsgConsumer
 
-DEBUG = True
-"""Debug mode"""
 
 class App(BeatMaker):
     def __init__(self, configfile='app_config.ini', verbose=False):
@@ -54,7 +48,6 @@ class App(BeatMaker):
 
     def setup(self):
         if self.csdata is None or self.csalert is None:
-            print('NONENONONONON')
             config = configparser.ConfigParser()
             config.read(self.__configfile)
             self.csdata = MsgConsumer(topic=config['DEFAULT']['DATA_TOPIC'],
