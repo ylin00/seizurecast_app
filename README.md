@@ -1,10 +1,12 @@
-SeizureCast
+SeizureCast web app
 ==============================
 
 Real-time forecasting epileptic seizure using electroencephalogram
 
-Deploy streamlit on EC2
------------------------
+This repo contents a streamlit web app monitoring the EEG stream sent to the server, and the seizure prediction made by the server. To access this app, visit seizurecast.com
+
+Launch this web app on AWS EC2
+------------------------------
 1. Setup EC2 running ubuntu 18.04
 Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html
 
@@ -29,7 +31,8 @@ Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC
 * (optional) kill all sessoins:
 ```tmux kill-session -a```
 
-4. Install nginx and
+4. Install nginx 1.14
+```sudo apt-get install nginx=1.14```
 
 * Run
 ``` sudo vim /etc/nginx/sites-enabled/streamlit```
