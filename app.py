@@ -2,11 +2,10 @@ import configparser
 import time
 import streamlit as st
 import numpy as np
-import pickle
 import matplotlib.pyplot as plt
 
-from BeatMaker import BeatMaker
-from MsgConsumer import MsgConsumer
+from src.BeatMaker import BeatMaker
+from src.MsgConsumer import MsgConsumer
 
 
 class App(BeatMaker):
@@ -59,7 +58,8 @@ class App(BeatMaker):
                                       broker_address=config['DEFAULT']['KALFK_BROKER_ADDRESS'],
                                       group_id=config['DEFAULT']['GROUP_ID']+str(time.time()),
                                       client_id='data_consumer',
-                                      num_messages=self.__data_width,
+                                      num_messages=self.__data_width * 2,
+                                      data_width=self.__data_width,
                                       auto_offset_reset='latest',
                                       verbose=True)
             self.csalert= MsgConsumer(topic=config['DEFAULT']['ALERT_TOPIC'],
@@ -67,14 +67,17 @@ class App(BeatMaker):
                                       group_id=config['DEFAULT']['GROUP_ID']+str(time.time()),
                                       client_id='alert_consumer',
                                       num_messages=1,
+                                      data_width=1,
                                       auto_offset_reset='latest',
                                       verbose=True)
 
     def _main_(self):
+        """Override parent method"""
         self.listen()
         self.update()
 
     def listen(self):
+        """Listern to server and receive key, plot_data and alert"""
         self.csdata.listen()
         self.csalert.listen()
 
@@ -106,6 +109,7 @@ class App(BeatMaker):
             n = self.__plot_width - len(ydata)
             ydata = np.concatenate([[np.nan]*n, ydata])
 
+            # Update each line
             self.__lines[ch].set_ydata(ydata)
 
         self.__st_plot.pyplot(plt)
