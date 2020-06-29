@@ -17,6 +17,8 @@ class App(BeatMaker):
             config: path to app_config.ini
             verbose: verbose mode. (default: False)
         """
+
+        self.__DEBUG = True
         self.__status_text = None
         self.__configfile = configfile
 
@@ -48,18 +50,21 @@ class App(BeatMaker):
 
     def setup(self):
         if self.csdata is None or self.csalert is None:
+
+            print("INFO: New Consumer created") if self.__DEBUG else None
+
             config = configparser.ConfigParser()
             config.read(self.__configfile)
             self.csdata = MsgConsumer(topic=config['DEFAULT']['DATA_TOPIC'],
                                       broker_address=config['DEFAULT']['KALFK_BROKER_ADDRESS'],
-                                      group_id=config['DEFAULT']['GROUP_ID'],
+                                      group_id=config['DEFAULT']['GROUP_ID']+str(time.time()),
                                       client_id='data_consumer',
                                       num_messages=self.__data_width,
                                       auto_offset_reset='latest',
                                       verbose=True)
             self.csalert= MsgConsumer(topic=config['DEFAULT']['ALERT_TOPIC'],
                                       broker_address=config['DEFAULT']['KALFK_BROKER_ADDRESS'],
-                                      group_id=config['DEFAULT']['GROUP_ID'],
+                                      group_id=config['DEFAULT']['GROUP_ID']+str(time.time()),
                                       client_id='alert_consumer',
                                       num_messages=1,
                                       auto_offset_reset='latest',
@@ -119,6 +124,8 @@ class App(BeatMaker):
         st.title('SeizureCast')
         st.markdown("""
         Real-time forecasting epileptic seizure from electroencephalogram.
+        
+        Download a streamer and try it out: [github.com/ylin00/eeg_streamer/releases/](https://www.github.com/ylin00/eeg_streamer/releases/)
         """)
 
     def box_sampling_rate(self):
@@ -145,22 +152,10 @@ class App(BeatMaker):
             self.__lines.append(line)
         plt.xlabel('time (s)')
         plt.ylabel('channel')
+        plt.xticks(np.arange(int(min(x)), int(max(x)), 2))
+        plt.yticks(np.arange(1, int(self.__data_height * 1.2)))
         self.__st_plot = st.pyplot(plt)
         self.__status_text = st.empty()
-
-
-#
-# def plot_eeg(data, fsamp=1):
-#     """Make a plot of eeg data
-#
-#     Args:
-#         data: nchannel x nsample
-#         fsamp: samping rate. must be integer
-#
-#     Returns:
-#         plot
-#
-#     """
 
 
 app = App()
