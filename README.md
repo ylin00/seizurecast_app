@@ -32,7 +32,7 @@ Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC
 ```tmux kill-session -a```
 
 4. Install nginx 1.14
-```sudo apt-get install nginx=1.14```
+```sudo apt-get install -y nginx```
 
 * Run
 ``` sudo vim /etc/nginx/sites-enabled/streamlit```
