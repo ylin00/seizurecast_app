@@ -8,54 +8,60 @@ This repo contents a streamlit web app monitoring the EEG stream sent to the ser
 Launch this web app on AWS EC2
 ------------------------------
 1. Setup EC2 running ubuntu 18.04
-Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html
+        Follow instructions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html
 
-* Set up security group to allow streamlit port 8501 visted from private IP.
+      * Set up security group to allow streamlit port 8501 visted from private IP.
 
+1. Install tmux and run a session.
+    * new session:
+        ```sh
+        tmux new -s my_session
+        ```
+    * detach session by key sequence Ctrl-b + d to detach from the session
+    * (optional) kill all sessoins:
+        ```sh
+        tmux kill-session -a
+        ```    
 2. Git clone your app (github repo) to the server
+    * Install Streamlit *using sudo*
+        ```sudo python3 -m pip install streamlit==0.62.0```
+    * Test the streamlit is installed properly. The following line should pass.
+        ```streamlit -h```
 
-* Install Streamlit *using sudo*
-```sudo python3 -m pip install streamlit```
-* Test the streamlit is installed properly. The following line should pass.
-```streamlit -h```
-
-3. Install tmux and run a session.
-* new session:
-`tmux new -s my_session`
-
-* run streamlit app:
-`streamlit run app.py`
-
-* detach session by key sequence Ctrl-b + d to detach from the session
-
-* (optional) kill all sessoins:
-```tmux kill-session -a```
+1. run streamlit app:
+    ```sh
+    streamlit run app.py
+    ```
 
 4. Install nginx 1.14
-```sudo apt-get install -y nginx```
+    ```sh
+    sudo apt install nginx=1.14.0-0ubuntu1.9
+    ```
 
-* Run
-``` sudo vim /etc/nginx/sites-enabled/streamlit```
+    * Run
+    ```sh
+    sudo vim /etc/nginx/sites-enabled/streamlit
+    ```
 
-* Add the following (Change `YOUR_DOMAIN_NAME_NO_SLASH` to your domain name)
-```
-server {
-        listen 80;
-        server_name YOUR_DOMAIN_NAME_NO_SLASH;  
-        location /google {
-                proxy_pass http://google.com/;
+    * Add the following (Change `YOUR_DOMAIN_NAME_NO_SLASH` to your domain name)
+        ```config
+        server {
+                listen 80;
+                server_name www.example.com;  
+                location /google {
+                        proxy_pass http://google.com/;
+                }
+                location / { # most important config
+                        proxy_pass http://localhost:8501/;
+                        proxy_http_version 1.1; 
+                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                        proxy_set_header Host $host;
+                        proxy_set_header Upgrade $http_upgrade;
+                        proxy_set_header Connection "upgrade";
+                        proxy_read_timeout 86400;
+                }
         }
-        location / { # most important config
-                proxy_pass http://localhost:8501/;
-                proxy_http_version 1.1; 
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header Host $host;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "upgrade";
-                proxy_read_timeout 86400;
-        }
-}
-```
+        ```
 
 And save it by `:wq`
 
@@ -66,9 +72,9 @@ sudo nginx -s reload
 
 5. Try it out.
 
-Test `YOUR_DOMAIN_NAME/google` should point to google.com.
+Test `www.example.com/google` should point to google.com.
 
-Test `YOUR_DOMAIN_NAME` should point to your app
+Test `www.example.com` should point to your app
 
 
 Run
